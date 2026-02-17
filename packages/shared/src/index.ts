@@ -6,6 +6,7 @@ const ticketStatusSchema = z.enum([
     'COMPLETED',
     'RESOLVED',
     'FAILED',
+    'CANCELLED',
 ])
 
 const ticketCategorySchema = z.enum(['BILLING', 'TECHNICAL', 'FEATURE_REQUEST'])

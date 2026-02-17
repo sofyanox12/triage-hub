@@ -4,6 +4,7 @@ import { Ticket } from '@/features/tickets/api/ticket.types'
 import { UrgencyBadge } from './urgency-badge'
 import { TicketStatusBadge } from './ticket-status-badge'
 import { AiStatusIndicator } from './ai-status-indicator'
+import { CategoryBadge } from './category-badge'
 import Link from 'next/link'
 import {
     Button,
@@ -57,7 +58,7 @@ export const TicketTable = ({
         ) : (
             <span className="text-muted-foreground">-</span>
         ),
-        category: ticket.category || '-',
+        category: <CategoryBadge category={ticket.category} />,
         customer: ticket.customerName || '-',
         createdAt: new Date(ticket.createdAt).toLocaleDateString(),
         action: renderTicketActions(ticket),

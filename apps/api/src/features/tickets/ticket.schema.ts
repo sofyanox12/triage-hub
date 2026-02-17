@@ -44,7 +44,6 @@ const updateTicketSchema = z.object({
 const updateTicketAgentSchema = z.object({
     urgency: z.enum(['LOW', 'MEDIUM', 'HIGH']).optional(),
     category: z.enum(['BILLING', 'TECHNICAL', 'FEATURE_REQUEST']).optional(),
-    sentiment: z.number().min(1).max(10).optional(),
     resolutionResponse: z.string().optional(),
 })
 

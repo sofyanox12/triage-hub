@@ -1,5 +1,5 @@
 import { http } from '@/lib/http'
-import type { Ticket, TicketListQuery, ListResponse, TicketStatus } from './ticket.types'
+import type { Ticket, TicketListQuery, ListResponse } from './ticket.types'
 
 const ticketService = {
     createTicket: async (payload: { title: string; description: string }) => {
@@ -27,9 +27,7 @@ const ticketService = {
         payload: {
             urgency?: 'LOW' | 'MEDIUM' | 'HIGH'
             category?: 'BILLING' | 'TECHNICAL' | 'FEATURE_REQUEST'
-            sentiment?: number
             resolutionResponse?: string
-            status?: TicketStatus
         }
     ) => {
         return http.patch<Ticket>(`tickets/${id}/agent-update`, payload)

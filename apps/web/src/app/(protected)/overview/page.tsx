@@ -30,7 +30,7 @@ const OverviewPage = () => {
     return (
         <Stack className="gap-8">
             <Group className="justify-between space-y-2">
-                <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+                <h2 className="text-3xl font-bold tracking-tight">Overview</h2>
                 {!isAgent && (
                     <Button asChild>
                         <Link href="/tickets">Go to Tickets</Link>

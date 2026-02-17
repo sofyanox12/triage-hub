@@ -8,7 +8,11 @@ const UrgencyBadge = ({ urgency }: { urgency: Ticket['urgency'] }) => {
             : urgency === 'MEDIUM'
               ? 'warning'
               : 'outline'
-    return <Badge variant={variant}>{urgency}</Badge>
+    return (
+        <Badge className="rounded-lg py-1" variant={variant}>
+            {urgency}
+        </Badge>
+    )
 }
 
 export { UrgencyBadge }

@@ -60,7 +60,7 @@ export function TableData({
             <div className="rounded-md border">
                 <Table>
                     <TableHeader>
-                        <TableRow>
+                        <TableRow className="bg-gray-100/50">
                             {columns.map((column) => (
                                 <TableHead
                                     key={column.key}

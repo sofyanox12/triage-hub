@@ -36,10 +36,10 @@ const TicketsPage = () => {
                             ? 'All Tickets'
                             : 'Your Tickets'}
                     </h2>
-                    <span>
+                    <span className="text-muted-foreground">
                         {user?.type === 'AGENT'
-                            ? 'Showing available & manageable tickets to agents'
-                            : 'Showing tickets you have created'}
+                            ? 'Showing available & manageable tickets as an agent.'
+                            : 'Showing tickets you have created.'}
                     </span>
                 </Stack>
 

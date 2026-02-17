@@ -33,12 +33,12 @@ const Sidebar = () => {
                     className="flex items-center gap-2 font-semibold"
                 >
                     <Ticket className="h-6 w-6" />
-                    <span className="">TriageHub</span>
+                    <span className="">Triage Hub</span>
                 </Link>
             </div>
 
             <div className="flex-1 overflow-auto py-2">
-                <nav className="grid items-start px-2 text-sm font-medium lg:px-4 space-y-1">
+                <nav className="grid items-start px-2 text-sm font-medium lg:px-4 space-y-1 py-2">
                     {links.map((link) => {
                         const Icon = link.icon
                         const isActive =

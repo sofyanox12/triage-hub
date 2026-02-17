@@ -11,18 +11,18 @@ export const ticketTableColumns = (isAgent: boolean): TableColumnProps[] => {
             key: 'status',
             title: 'Status',
         },
+        {
+            key: 'urgency',
+            title: 'Priority',
+        },
+        {
+            key: 'category',
+            title: 'Category',
+        },
     ]
 
     if (isAgent) {
         columns.push(
-            {
-                key: 'urgency',
-                title: 'Priority',
-            },
-            {
-                key: 'category',
-                title: 'Category',
-            },
             {
                 key: 'customer',
                 title: 'Customer',

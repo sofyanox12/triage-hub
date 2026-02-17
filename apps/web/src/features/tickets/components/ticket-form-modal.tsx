@@ -27,8 +27,7 @@ const TicketFormModal = () => {
                 <DialogHeader>
                     <DialogTitle>Create Ticket</DialogTitle>
                     <DialogDescription>
-                        Submit a new ticket. AI triage will analyze it
-                        asynchronously.
+                        Submit a new ticket as a customer.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="py-4">

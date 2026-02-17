@@ -3,6 +3,7 @@ import { createTicketSchema, StatusCode } from '@triage/shared'
 import { TicketService } from './ticket.service'
 import {
     listTicketsQuerySchema,
+    updateTicketAgentSchema,
 } from './ticket.schema'
 import { ResponseHelper } from '@/utils/response-helper'
 
@@ -69,7 +70,7 @@ class TicketController {
                 .json({ message: 'Only agents can update tickets' })
         }
 
-        const payload = req.body
+        const payload = updateTicketAgentSchema.parse(req.body)
         const ticket = await TicketService.updateTicketAgent(
             req.params.id as string,
             payload
