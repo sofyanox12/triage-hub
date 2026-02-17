@@ -3,6 +3,7 @@
 import { useFormContext } from 'react-hook-form'
 import {
     FormControl,
+    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -26,6 +27,7 @@ interface InputSelectProps {
     name: string
     label?: string
     placeholder?: string
+    description?: string
     items: SelectItemProps[]
     className?: string
     disabled?: boolean
@@ -35,6 +37,7 @@ const InputSelect = ({
     name,
     label,
     placeholder = 'Select an option',
+    description,
     items,
     className,
     disabled,
@@ -48,6 +51,11 @@ const InputSelect = ({
             render={({ field }) => (
                 <FormItem className={cn('space-y-2', className)}>
                     {label && <FormLabel>{label}</FormLabel>}
+                    {description && (
+                        <FormDescription className="text-xs text-muted-foreground">
+                            {description}
+                        </FormDescription>
+                    )}
                     <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}

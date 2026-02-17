@@ -19,11 +19,7 @@ const processTicket = async (job: Job<TicketJobData>) => {
         return
     }
 
-    if (
-        ticket.status === 'COMPLETED' ||
-        ticket.status === 'RESOLVED' ||
-        ticket.status === 'FAILED'
-    ) {
+    if (['COMPLETED', 'RESOLVED', 'FAILED'].includes(ticket.status)) {
         jobLogger.info(
             { status: ticket.status },
             'worker_ticket_already_processed'

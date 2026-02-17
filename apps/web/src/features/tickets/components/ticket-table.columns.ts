@@ -13,7 +13,7 @@ export const ticketTableColumns = (isAgent: boolean): TableColumnProps[] => {
         },
         {
             key: 'urgency',
-            title: 'Priority',
+            title: 'Urgency',
         },
         {
             key: 'category',

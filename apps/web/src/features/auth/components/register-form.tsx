@@ -81,6 +81,7 @@ const RegisterForm = () => {
                     name="type"
                     label="Account Type"
                     placeholder="Select account type"
+                    description="Quickly pre-select the account type for technical brief purpose."
                     items={[
                         { value: 'CUSTOMER', label: 'Customer' },
                         { value: 'AGENT', label: 'Agent' },

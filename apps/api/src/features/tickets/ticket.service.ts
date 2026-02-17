@@ -129,15 +129,15 @@ class TicketService {
             throw new ConflictException('Ticket is already resolved')
         }
 
-        if (existing.status !== 'COMPLETED') {
+        if (existing.status !== 'COMPLETED' && existing.status !== 'FAILED') {
             throw new ConflictException(
-                `Only COMPLETED tickets can be resolved. Current status: ${existing.status}`
+                `Only COMPLETED or FAILED tickets can be resolved. Current status: ${existing.status}`
             )
         }
 
         const result = await TicketRepository.updateStatus(
             id,
-            'COMPLETED',
+            existing.status,
             'RESOLVED'
         )
 

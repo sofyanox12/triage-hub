@@ -43,7 +43,9 @@ export const ticketStreamHandler = async (req: Request, res: Response, _next: Ne
 
     res.write('data: "connected"\n\n')
 
-    if (typeof (res as any).flush === 'function') (res as any).flush()
+    if ('flush' in res && typeof res.flush === 'function') {
+        res.flush()
+    }
 
     const redisSubscriber = getRedisClient().duplicate()
 

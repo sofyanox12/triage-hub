@@ -9,33 +9,23 @@ import {
     Badge,
     Button,
     Label,
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-    Textarea,
 } from '@/components/ui'
 import {
     useUpdateTicketAgent,
     useResolveTicket,
     useCancelTicket,
 } from '@/features/tickets/hooks/use-tickets'
-import { useState } from 'react'
-import {
-    Loader2,
-    Save,
-    CheckCircle,
-    XCircle,
-    Brain,
-    User,
-    Mail,
-} from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { FormWrapper } from '@/components/inputs'
+import { useEffect } from 'react'
 import { useAuth } from '@/features/auth/providers/auth-provider'
 import { TicketStatusBadge } from './ticket-status-badge'
 import { CategoryBadge } from './category-badge'
 import { UrgencyBadge } from './urgency-badge'
 import { toast } from 'sonner'
+import { TicketUrgency } from '@/lib/types/ticket'
+import { TicketCustomerInfo } from './ticket-customer-info'
+import { TicketAgentActions } from './ticket-agent-actions'
 
 interface TicketDetailCardProps {
     ticket: Ticket
@@ -53,27 +43,43 @@ const TicketDetailCard = ({ ticket }: TicketDetailCardProps) => {
     const { user } = useAuth()
     const isAgent = user?.type === 'AGENT'
 
-    const [draft, setDraft] = useState(ticket.resolutionResponse ?? '')
-    const [urgency, setUrgency] = useState<
-        'LOW' | 'MEDIUM' | 'HIGH' | undefined
-    >(ticket.urgency ?? undefined)
+    const form = useForm<{
+        resolutionResponse: string
+        urgency: TicketUrgency
+    }>({
+        defaultValues: {
+            resolutionResponse: ticket.resolutionResponse ?? '',
+            urgency: ticket.urgency ?? 'LOW',
+        },
+    })
+
+    useEffect(() => {
+        form.reset({
+            resolutionResponse: ticket.resolutionResponse ?? '',
+            urgency: ticket.urgency ?? 'LOW',
+        })
+    }, [ticket, form])
 
     const isProcessing =
         ticket.status === 'PENDING' || ticket.status === 'PROCESSING'
     const isFinalized =
         ticket.status === 'RESOLVED' || ticket.status === 'CANCELLED'
     const isCompleted = ticket.status === 'COMPLETED'
+    const isFailed = ticket.status === 'FAILED'
 
     const isDisabled =
-        !isCompleted || isFinalized || updateTicketAgent.isPending
+        (!isCompleted && !isFailed) ||
+        isFinalized ||
+        updateTicketAgent.isPending
 
     const handleSave = async () => {
+        const { resolutionResponse, urgency } = form.getValues()
         try {
             await updateTicketAgent.mutateAsync({
                 id: ticket.id,
                 data: {
-                    resolutionResponse: draft,
-                    urgency,
+                    resolutionResponse,
+                    urgency: urgency,
                 },
             })
             toast.success('Changes saved successfully')
@@ -84,17 +90,17 @@ const TicketDetailCard = ({ ticket }: TicketDetailCardProps) => {
     }
 
     const handleResolve = async () => {
+        const { resolutionResponse, urgency } = form.getValues()
         try {
-            // Save draft/urgency first if changed
             if (
-                draft !== ticket.resolutionResponse ||
+                resolutionResponse !== ticket.resolutionResponse ||
                 urgency !== ticket.urgency
             ) {
                 await updateTicketAgent.mutateAsync({
                     id: ticket.id,
                     data: {
-                        resolutionResponse: draft,
-                        urgency,
+                        resolutionResponse,
+                        urgency: urgency,
                     },
                 })
             }
@@ -129,185 +135,76 @@ const TicketDetailCard = ({ ticket }: TicketDetailCardProps) => {
                 )}
             </CardHeader>
             <CardContent>
-                <div className="grid gap-6">
-                    <div className="grid gap-3">
-                        <Label className="text-muted-foreground">
-                            Description
-                        </Label>
-                        <div className="text-sm font-medium whitespace-pre-wrap">
-                            {ticket.description}
-                        </div>
-                    </div>
+                <FormWrapper form={form} className="space-y-0">
+                    <div className="grid gap-6">
+                        {isAgent && (
+                            <TicketCustomerInfo
+                                customerName={ticket.customerName}
+                                customerEmail={ticket.customerEmail}
+                            />
+                        )}
 
-                    {isAgent && (
-                        <div className="flex flex-col gap-2 p-4 rounded-xl bg-secondary/20 border">
-                            <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-full bg-background flex items-center justify-center border shadow-sm">
-                                    <User className="h-5 w-5 text-muted-foreground" />
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-tight">
-                                        Customer
-                                    </span>
-                                    <span className="text-sm font-bold">
-                                        {ticket.customerName ||
-                                            'Unknown Customer'}
-                                    </span>
-                                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
-                                        <Mail className="h-3.5 w-3.5" />
-                                        {ticket.customerEmail ||
-                                            'No email provided'}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
+                        <div className="grid gap-3">
                             <Label className="text-muted-foreground">
-                                Status
+                                Description
                             </Label>
-                            <div>
-                                <TicketStatusBadge status={ticket.status} />
+                            <div className="text-sm font-medium whitespace-pre-wrap">
+                                {ticket.description}
                             </div>
                         </div>
-                        <div className="space-y-2">
-                            <Label className="text-muted-foreground">
-                                Created At
-                            </Label>
-                            <div className="text-sm font-medium">
-                                {new Date(ticket.createdAt).toLocaleString()}
-                            </div>
-                        </div>
-                    </div>
 
-                    {ticket.category && (
-                        <div className="space-y-2">
-                            <Label className="text-muted-foreground">
-                                Category
-                            </Label>
-                            <div>
-                                <CategoryBadge
-                                    category={ticket.category}
-                                    className="px-3 py-1 text-xs"
-                                />
-                            </div>
-                        </div>
-                    )}
-
-                    {isAgent && (
-                        <>
-                            <div className="grid gap-3">
-                                <Label className="flex items-center gap-2">
-                                    Resolution Response
-                                    {isProcessing && (
-                                        <Badge
-                                            variant="outline"
-                                            className="text-xs font-normal"
-                                        >
-                                            <Brain className="mr-1 h-3 w-3" />
-                                            AI processing...
-                                        </Badge>
-                                    )}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label className="text-muted-foreground">
+                                    Status
                                 </Label>
-                                <Textarea
-                                    className="min-h-[120px]"
-                                    placeholder="Prefilled resolution draft..."
-                                    value={draft}
-                                    onChange={(e) => setDraft(e.target.value)}
-                                    disabled={isDisabled}
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>Urgency</Label>
-                                    <Select
-                                        value={urgency}
-                                        onValueChange={(
-                                            val: 'LOW' | 'MEDIUM' | 'HIGH'
-                                        ) => setUrgency(val)}
-                                        disabled={isDisabled}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select urgency" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="LOW">
-                                                Low
-                                            </SelectItem>
-                                            <SelectItem value="MEDIUM">
-                                                Medium
-                                            </SelectItem>
-                                            <SelectItem value="HIGH">
-                                                High
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Sentiment Score (AI)</Label>
-                                    <div className="flex h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm">
-                                        {ticket.sentiment ?? '-'} / 10
-                                    </div>
+                                <div>
+                                    <TicketStatusBadge status={ticket.status} />
                                 </div>
                             </div>
-
-                            <div className="flex flex-wrap items-center justify-end gap-3 pt-4 border-t">
-                                <Button
-                                    variant="outline"
-                                    onClick={handleCancel}
-                                    disabled={
-                                        isFinalized ||
-                                        ticket.status === 'PROCESSING' ||
-                                        cancelTicket.isPending
-                                    }
-                                >
-                                    {cancelTicket.isPending ? (
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    ) : (
-                                        <XCircle className="mr-2 h-4 w-4" />
-                                    )}
-                                    Cancel Ticket
-                                </Button>
-
-                                <div className="flex items-center gap-2 ml-auto">
-                                    <Button
-                                        variant="secondary"
-                                        onClick={handleSave}
-                                        disabled={
-                                            isDisabled ||
-                                            updateTicketAgent.isPending
-                                        }
-                                    >
-                                        {updateTicketAgent.isPending ? (
-                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        ) : (
-                                            <Save className="mr-2 h-4 w-4" />
-                                        )}
-                                        Save Changes
-                                    </Button>
-
-                                    <Button
-                                        onClick={handleResolve}
-                                        disabled={
-                                            !isCompleted ||
-                                            resolveTicket.isPending
-                                        }
-                                    >
-                                        {resolveTicket.isPending ? (
-                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        ) : (
-                                            <CheckCircle className="mr-2 h-4 w-4" />
-                                        )}
-                                        Resolve
-                                    </Button>
+                            <div className="space-y-2">
+                                <Label className="text-muted-foreground">
+                                    Created At
+                                </Label>
+                                <div className="text-sm font-medium">
+                                    {new Date(
+                                        ticket.createdAt
+                                    ).toLocaleString()}
                                 </div>
                             </div>
-                        </>
-                    )}
-                </div>
+                        </div>
+
+                        {ticket.category && (
+                            <div className="space-y-2">
+                                <Label className="text-muted-foreground">
+                                    Category
+                                </Label>
+                                <div>
+                                    <CategoryBadge
+                                        category={ticket.category}
+                                        className="px-3 py-1 text-xs"
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {isAgent && (
+                            <TicketAgentActions
+                                ticket={ticket}
+                                isProcessing={isProcessing}
+                                isDisabled={isDisabled}
+                                isFinalized={isFinalized}
+                                isCompleted={isCompleted || isFailed}
+                                handleSave={handleSave}
+                                handleResolve={handleResolve}
+                                handleCancel={handleCancel}
+                                isSavePending={updateTicketAgent.isPending}
+                                isResolvePending={resolveTicket.isPending}
+                                isCancelPending={cancelTicket.isPending}
+                            />
+                        )}
+                    </div>
+                </FormWrapper>
             </CardContent>
         </Card>
     )
