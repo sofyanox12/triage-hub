@@ -7,6 +7,7 @@ import { AiStatusIndicator } from './ai-status-indicator'
 import Link from 'next/link'
 import {
     Button,
+    Stack,
     Tooltip,
     TooltipContent,
     TooltipProvider,
@@ -46,10 +47,10 @@ export const TicketTable = ({
     const data = tickets.map((ticket) => ({
         title: ticket.title,
         status: (
-            <div className="flex flex-col gap-1.5">
+            <Stack className="w-fit gap-1">
                 <TicketStatusBadge status={ticket.status} />
                 {isAgent && <AiStatusIndicator status={ticket.status} />}
-            </div>
+            </Stack>
         ),
         urgency: ticket.urgency ? (
             <UrgencyBadge urgency={ticket.urgency} />
@@ -59,23 +60,7 @@ export const TicketTable = ({
         category: ticket.category || '-',
         customer: ticket.customerName || '-',
         createdAt: new Date(ticket.createdAt).toLocaleDateString(),
-        action: (
-            <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" asChild>
-                            <Link href={`/tickets/${ticket.id}`}>
-                                <Eye className="h-4 w-4" />
-                                <span className="sr-only">View Details</span>
-                            </Link>
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        <p>View Details</p>
-                    </TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
-        ),
+        action: renderTicketActions(ticket),
     }))
 
     return (
@@ -88,3 +73,21 @@ export const TicketTable = ({
         />
     )
 }
+
+const renderTicketActions = (ticket: Ticket) => (
+    <TooltipProvider>
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" asChild>
+                    <Link href={`/tickets/${ticket.id}`}>
+                        <Eye className="h-4 w-4" />
+                        <span className="sr-only">View Details</span>
+                    </Link>
+                </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+                <p>View Details</p>
+            </TooltipContent>
+        </Tooltip>
+    </TooltipProvider>
+)

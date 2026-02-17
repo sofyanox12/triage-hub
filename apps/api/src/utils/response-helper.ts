@@ -1,5 +1,5 @@
 import { Response } from 'express'
-import { StatusCode } from './status-code'
+import { StatusCode } from '@triage/shared'
 import type {
     ApiResponse,
     FieldError,

@@ -4,7 +4,7 @@ import { logger } from '@/lib/logger'
 import { LOG_EVENTS, ERROR_MESSAGES } from '@/lib/constants'
 import { ServiceException, ValidationException } from '@/lib/exception'
 import { ResponseHelper } from '@/utils/response-helper'
-import { StatusCode } from '@/utils/status-code'
+import { StatusCode } from '@triage/shared'
 
 /**
  * Error handling middleware

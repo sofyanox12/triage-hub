@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { createTicketSchema } from '@triage/shared'
+import { createTicketSchema, StatusCode } from '@triage/shared'
 import { TicketService } from './ticket.service'
 import {
     listTicketsQuerySchema,
@@ -49,7 +49,7 @@ class TicketController {
     static async resolveTicket(req: Request, res: Response) {
         if (req.user?.type !== 'AGENT') {
             return res
-                .status(403)
+                .status(StatusCode.FORBIDDEN)
                 .json({ message: 'Only agents can resolve tickets' })
         }
         const ticket = await TicketService.resolveTicket(
@@ -65,7 +65,7 @@ class TicketController {
     static async updateTicketAgent(req: Request, res: Response) {
         if (req.user?.type !== 'AGENT') {
             return res
-                .status(403)
+                .status(StatusCode.FORBIDDEN)
                 .json({ message: 'Only agents can update tickets' })
         }
 

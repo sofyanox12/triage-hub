@@ -12,7 +12,7 @@ import { ticketRouter } from './routes/tickets'
 import { ticketStreamRouter } from './routes/ticket-stream'
 import { authRouter } from './features/auth/auth.route'
 import { ResponseHelper } from './utils/response-helper'
-import { StatusCode } from './utils/status-code'
+import { StatusCode } from '@triage/shared'
 
 const app: ReturnType<typeof express> = express()
 

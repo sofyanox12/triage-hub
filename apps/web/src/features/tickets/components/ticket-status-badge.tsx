@@ -1,4 +1,4 @@
-import { Badge } from '@/components/ui'
+import { Badge, Box, Group } from '@/components/ui'
 import { Ticket } from '@/features/tickets/api/ticket.types'
 
 const TicketStatusBadge = ({ status }: { status: Ticket['status'] }) => {
@@ -8,6 +8,7 @@ const TicketStatusBadge = ({ status }: { status: Ticket['status'] }) => {
         | 'destructive'
         | 'outline'
         | 'success' = 'secondary'
+
     let label = status
 
     switch (status) {
@@ -29,7 +30,14 @@ const TicketStatusBadge = ({ status }: { status: Ticket['status'] }) => {
             label = 'PENDING'
     }
 
-    return <Badge variant={variant}>{label}</Badge>
+    return (
+        <Badge className="w-fit rounded-lg py-1" variant={variant}>
+            <Group className="gap-1">
+                <Box className="mr-2 h-2 w-2 rounded-full bg-black" />
+                {label}
+            </Group>
+        </Badge>
+    )
 }
 
 export { TicketStatusBadge }

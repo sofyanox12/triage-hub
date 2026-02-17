@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
-import { UserType } from '@triage/shared'
+import { UserType, StatusCode } from '@triage/shared'
 import { env } from '../config/env'
 import { getRedisClient, CHANNEL_TICKETS_UPDATED, TicketUpdatePayload } from '../lib/redis-pubsub'
 import { logger } from '../lib/logger'
@@ -15,7 +15,7 @@ export const ticketStreamHandler = async (req: Request, res: Response, _next: Ne
     const token = req.query.token as string
 
     if (!token) {
-        res.status(401).json({ message: 'Missing token' })
+        res.status(StatusCode.UNAUTHORIZED).json({ message: 'Missing token' })
         return
     }
 
@@ -31,11 +31,11 @@ export const ticketStreamHandler = async (req: Request, res: Response, _next: Ne
             type: payload.type as UserType,
         }
     } catch {
-        res.status(401).json({ message: 'Invalid token' })
+        res.status(StatusCode.UNAUTHORIZED).json({ message: 'Invalid token' })
         return
     }
 
-    res.writeHead(200, {
+    res.writeHead(StatusCode.OK, {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
         'Connection': 'keep-alive',

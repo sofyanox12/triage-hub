@@ -2,6 +2,7 @@ import axios, { AxiosError, AxiosRequestConfig } from 'axios'
 import type { ApiErrorResponse, ApiSuccessResponse } from './api'
 
 import { API_BASE_URL, STORAGE_KEYS } from '@/lib/constants'
+import { StatusCode } from '@triage/shared'
 
 const axiosInstance = axios.create({
   baseURL: `${API_BASE_URL}/api/`,
@@ -27,7 +28,7 @@ axiosInstance.interceptors.response.use(
   (error: AxiosError) => {
     const data = error.response?.data as ApiErrorResponse | undefined
 
-    if (error.response?.status === 401) {
+    if (error.response?.status === StatusCode.UNAUTHORIZED) {
       if (typeof window !== 'undefined') {
         const isLoginPage = window.location.pathname === '/login'
         if (!isLoginPage) {

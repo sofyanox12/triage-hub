@@ -1,5 +1,5 @@
 import { ZodError } from 'zod'
-import { StatusCode } from '@/utils/status-code'
+import { StatusCode } from '@triage/shared'
 
 type FieldError = {
     field: string
