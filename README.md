@@ -4,13 +4,34 @@ An intelligent support triage system that automatically analyzes incoming ticket
 
 ## Architecture
 
-- **Web**: Next.js frontend with Tailwind CSS and TanStack Query.
-- **API**: Express.js server providing RESTful endpoints.
-- **Worker**: BullMQ-based background processor for AI triage tasks.
-- **Database**: PostgreSQL with Kysely for type-safe queries.
-- **Cache/Queue**: Redis for BullMQ and SSE message distribution.
+This project is a monorepo managed by **pnpm workspaces**, containing the following components:
 
-> All API routes are prefixed with `/api`.
+### Apps
+
+- **`apps/web`**: The frontend application built with **Next.js** (App Router).
+    - **Tech Stack**: React, Tailwind CSS, Radix UI, TanStack Query, React Hook Form.
+    - **Features**: Dashboard for support agents, real-time ticket updates via SSE, responsive design.
+
+- **`apps/api`**: The backend REST API built with **Express.js**.
+    - **Tech Stack**: Node.js, Express, Kysely (PostgreSQL), Redis (Pub/Sub + Cache).
+    - **Responsibilities**: Authentication, ticket management, user management, handling SSE connections.
+
+- **`apps/worker`**: A background worker service for asynchronous tasks.
+    - **Tech Stack**: Node.js, BullMQ, Google Gemini / OpenAI.
+    - **Responsibilities**: Processing incoming tickets, performing AI analysis (sentiment, priority, category), updating database status.
+
+### Packages
+
+- **`packages/shared`**: Shared code library used across all apps.
+    - **Contents**: Database types, Zod schemas, constants, shared utility functions, and AI adapters.
+
+### Infrastructure
+
+- **PostgreSQL**: The primary relational database, accessed via **Kysely** query builder for type safety.
+- **Redis**: Used for **BullMQ** job queues and as a Pub/Sub mechanism for real-time updates.
+- **Docker Compose**: Orchestrates the entire stack for local development.
+
+> **Note**: All API routes are pre-fixed with `/api`.
 
 ## Quick Start (Docker Compose)
 
