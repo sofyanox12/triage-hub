@@ -24,7 +24,7 @@ import { TicketStatusBadge } from './ticket-status-badge'
 import { CategoryBadge } from './category-badge'
 import { UrgencyBadge } from './urgency-badge'
 import { toast } from 'sonner'
-import { TicketUrgency } from '@/lib/types/ticket'
+import { TicketUrgency, TicketCategory } from '@/lib/types/ticket'
 import { TicketCustomerInfo } from './ticket-customer-info'
 import { TicketAgentActions } from './ticket-agent-actions'
 
@@ -47,10 +47,12 @@ const TicketDetailCard = ({ ticket }: TicketDetailCardProps) => {
     const form = useForm<{
         resolutionResponse: string
         urgency: TicketUrgency
+        category: TicketCategory
     }>({
         defaultValues: {
             resolutionResponse: ticket.resolutionResponse ?? '',
             urgency: ticket.urgency ?? 'LOW',
+            category: ticket.category ?? 'TECHNICAL',
         },
     })
 
@@ -58,6 +60,7 @@ const TicketDetailCard = ({ ticket }: TicketDetailCardProps) => {
         form.reset({
             resolutionResponse: ticket.resolutionResponse ?? '',
             urgency: ticket.urgency ?? 'LOW',
+            category: ticket.category ?? 'TECHNICAL',
         })
     }, [ticket, form])
 
@@ -74,13 +77,14 @@ const TicketDetailCard = ({ ticket }: TicketDetailCardProps) => {
         updateTicketAgent.isPending
 
     const handleSave = async () => {
-        const { resolutionResponse, urgency } = form.getValues()
+        const { resolutionResponse, urgency, category } = form.getValues()
         try {
             await updateTicketAgent.mutateAsync({
                 id: ticket.id,
                 data: {
                     resolutionResponse,
                     urgency: urgency,
+                    category: category,
                 },
             })
             toast.success('Changes saved successfully')
@@ -91,17 +95,19 @@ const TicketDetailCard = ({ ticket }: TicketDetailCardProps) => {
     }
 
     const handleResolve = async () => {
-        const { resolutionResponse, urgency } = form.getValues()
+        const { resolutionResponse, urgency, category } = form.getValues()
         try {
             if (
                 resolutionResponse !== ticket.resolutionResponse ||
-                urgency !== ticket.urgency
+                urgency !== ticket.urgency ||
+                category !== ticket.category
             ) {
                 await updateTicketAgent.mutateAsync({
                     id: ticket.id,
                     data: {
                         resolutionResponse,
                         urgency: urgency,
+                        category: category,
                     },
                 })
             }

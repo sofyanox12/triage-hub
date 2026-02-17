@@ -54,7 +54,7 @@ const TicketAgentActions = ({
                 disabled={isDisabled}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <InputSelect
                     name="urgency"
                     label="Urgency"
@@ -62,6 +62,16 @@ const TicketAgentActions = ({
                         { value: 'LOW', label: 'Low' },
                         { value: 'MEDIUM', label: 'Medium' },
                         { value: 'HIGH', label: 'High' },
+                    ]}
+                    disabled={isDisabled}
+                />
+                <InputSelect
+                    name="category"
+                    label="Category"
+                    items={[
+                        { value: 'BILLING', label: 'Billing' },
+                        { value: 'TECHNICAL', label: 'Technical' },
+                        { value: 'FEATURE_REQUEST', label: 'Feature Request' },
                     ]}
                     disabled={isDisabled}
                 />
