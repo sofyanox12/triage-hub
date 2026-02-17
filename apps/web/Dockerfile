@@ -1,14 +1,15 @@
 FROM node:20-bookworm-slim AS base
 WORKDIR /app
 
-RUN npm install -g pnpm@10.2.7
+RUN corepack enable \
+    && corepack prepare pnpm@10.27.0 --activate
 
-COPY package.json tsconfig.base.json ./
+COPY package.json tsconfig.base.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps ./apps
 COPY packages ./packages
 
 RUN pnpm install --frozen-lockfile
-RUN pnpm run build --filter @triage/web
+RUN pnpm run build
 
 EXPOSE 3000
-CMD ["pnpm", "run", "start", "--filter", "@triage/web"]
+CMD ["pnpm", "--filter", "@triage/web", "run", "start"]

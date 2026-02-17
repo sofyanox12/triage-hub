@@ -3,10 +3,11 @@ WORKDIR /app
 
 RUN apt-get update -y \
     && apt-get install -y --no-install-recommends openssl ca-certificates \
-    && npm install -g pnpm@10.2.7 \
+    && corepack enable \
+    && corepack prepare pnpm@10.27.0 --activate \
     && rm -rf /var/lib/apt/lists/*
 
-COPY package.json tsconfig.base.json ./
+COPY package.json tsconfig.base.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps ./apps
 COPY packages ./packages
 
@@ -14,4 +15,4 @@ RUN pnpm install --frozen-lockfile
 
 RUN pnpm run build
 
-CMD ["sh", "-c", "pnpm run start -w @triage/worker"]
+CMD ["sh", "-c", "pnpm --filter @triage/worker run start"]
