@@ -9,6 +9,7 @@ import {
     Badge,
     Button,
     Label,
+    Stack,
 } from '@/components/ui'
 import {
     useUpdateTicketAgent,
@@ -152,6 +153,17 @@ const TicketDetailCard = ({ ticket }: TicketDetailCardProps) => {
                                 {ticket.description}
                             </div>
                         </div>
+
+                        {!isAgent && ticket.resolutionResponse && (
+                            <Stack className="grid gap-3">
+                                <Label className="text-muted-foreground">
+                                    Resolution
+                                </Label>
+                                <div className="rounded-md bg-gray-100/50 p-3 text-sm whitespace-pre-wrap border border-gray-200">
+                                    {ticket.resolutionResponse}
+                                </div>
+                            </Stack>
+                        )}
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
