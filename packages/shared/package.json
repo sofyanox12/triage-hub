@@ -1,0 +1,40 @@
+{
+    "name": "@triage/shared",
+    "version": "1.0.0",
+    "private": true,
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        },
+        "./server": {
+            "types": "./dist/server.d.ts",
+            "default": "./dist/server.js"
+        }
+    },
+    "scripts": {
+        "build": "tsc -p tsconfig.json",
+        "lint": "eslint src",
+        "type-check": "tsc --noEmit",
+        "format": "prettier --write \"src/**/*.ts\""
+    },
+    "dependencies": {
+        "@google/generative-ai": "^0.21.0",
+        "kysely": "^0.28.11",
+        "openai": "^4.82.0",
+        "pg": "^8.13.1",
+        "pino": "^9.14.0",
+        "zod": "^4.3.6"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.39.2",
+        "@types/pg": "^8.11.11",
+        "eslint": "^9.39.2",
+        "eslint-plugin-import-x": "^4.16.1",
+        "globals": "^17.3.0",
+        "typescript": "^5.7.3",
+        "typescript-eslint": "^8.55.0"
+    }
+}

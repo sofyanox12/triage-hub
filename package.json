@@ -1,0 +1,30 @@
+{
+    "name": "ai-support-triage-hub",
+    "private": true,
+    "version": "1.0.0",
+    "workspaces": [
+        "apps/api",
+        "apps/web",
+        "apps/worker",
+        "packages/shared"
+    ],
+    "packageManager": "pnpm@10.27.0",
+    "engines": {
+        "node": ">=20",
+        "pnpm": ">=9"
+    },
+    "scripts": {
+        "preinstall": "npx only-allow pnpm",
+        "build": "pnpm -r run build",
+        "dev": "pnpm -r --parallel --filter @triage/api --filter @triage/web --filter @triage/worker run dev",
+        "check": "pnpm run lint && pnpm run type-check",
+        "lint": "pnpm -r run lint",
+        "type-check": "pnpm -r run type-check",
+        "format": "pnpm -r run format && prettier --write \"*.{js,ts,json,md}\" \"!pnpm-lock.yaml\"",
+        "format:check": "pnpm -r run format:check"
+    },
+    "devDependencies": {
+        "eslint-plugin-import": "^2.32.0",
+        "prettier": "^3.8.1"
+    }
+}
