@@ -20,7 +20,10 @@
         "db:migrate": "kysely migrate:latest",
         "db:rollback": "kysely migrate:rollback",
         "db:status": "kysely migrate:status",
-        "db:make": "kysely migrate:make"
+        "db:make": "kysely migrate:make",
+        "db:reset:tickets": "tsx src/scripts/db-reset.ts --tickets",
+        "db:reset:users": "tsx src/scripts/db-reset.ts --users",
+        "db:reset:all": "tsx src/scripts/db-reset.ts --all"
     },
     "dependencies": {
         "@google/generative-ai": "^0.24.1",
