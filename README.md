@@ -1,226 +1,98 @@
 # AI Support Triage Hub
 
-Production-hardened MVP for asynchronous support ticket triage.
+An intelligent support triage system that automatically analyzes incoming tickets using AI to determine sentiment, urgency, and category.
 
 ## Architecture
 
-The system is split into three runtime processes:
+- **Web**: Next.js frontend with Tailwind CSS and TanStack Query.
+- **API**: Express.js server providing RESTful endpoints.
+- **Worker**: BullMQ-based background processor for AI triage tasks.
+- **Database**: PostgreSQL with Kysely for type-safe queries.
+- **Cache/Queue**: Redis for BullMQ and SSE message distribution.
 
-- `web` (Next.js): operator UI
-- `api` (Express): ingestion/read APIs
-- `worker` (BullMQ): background AI processing
+> All API routes are prefixed with `/api`.
 
-Supporting infrastructure:
+## Quick Start (Docker Compose)
 
-- PostgreSQL (source of truth)
-- Redis (queue broker + worker coordination)
-- Kysely (type-safe SQL builder)
-- Zod (strict runtime validation)
+The easiest way to run the entire stack:
 
-### Why worker is isolated from API
+```bash
+# 1. Setup environment
+cp .env.example .env
 
-`POST /tickets` must stay fast and deterministic under AI latency spikes.
-
-- API only writes ticket + enqueues job, then returns `201`.
-- AI execution is isolated in worker process/container.
-- Worker failures and retries never block request/response path.
-
-## Ticket Lifecycle
-
-Lifecycle is enforced as:
-
-- `PENDING` -> `PROCESSING` -> `COMPLETED` -> `RESOLVED`
-- `PENDING` -> `PROCESSING` -> `FAILED` (after final retry)
-
-Rules:
-
-- Worker sets `PROCESSING` at job start.
-- On successful AI + DB update, status becomes `COMPLETED`.
-- On intermediate failure, status returns to `PENDING` for retry.
-- On final failure (attempt 3), status becomes `FAILED`.
-- `PATCH /tickets/:id/resolve` only succeeds for `COMPLETED` tickets.
-- Already resolved ticket returns `409`.
-
-## Reliability Controls
-
-### Non-blocking ingestion
-
-`POST /tickets` performs only:
-
-1. Insert ticket as `PENDING`
-2. Enqueue BullMQ job (`jobId=ticketId`)
-3. Return `201`
-
-No AI call exists in API route handler.
-
-### Idempotency
-
-- Queue job identity: one job per ticket (`jobId = ticketId`)
-- Worker guard skips already finalized tickets (`COMPLETED`/`RESOLVED`)
-- Worker claims only `PENDING` tickets before processing
-
-### Retry and backoff
-
-BullMQ defaults:
-
-- `attempts: 3`
-- exponential backoff with base `2000ms`
-
-Failures that trigger retry:
-
-- AI timeout
-- malformed JSON
-- Zod validation failure
-- DB update failure
-
-After final retry failure, ticket is marked `FAILED`.
-
-### Strict AI validation
-
-Worker validates AI output with `safeParse` against strict schema:
-
-```json
-{
-  "category": "Billing" | "Technical" | "Feature Request",
-  "sentimentScore": 1-10,
-  "urgency": "High" | "Medium" | "Low",
-  "draft": "string (min 10)"
-}
+# 2. Start services
+docker compose up --build
 ```
 
-Unvalidated output is never stored.
+Access the application at [http://localhost:3000](http://localhost:3000).
 
-### Structured logging
+## Local Development (Non‑Docker)
 
-API and worker use `pino` only (no `console.log`).
+Ensure you have Node.js 20+ and pnpm 9+ installed.
 
-Logged fields include:
+```bash
+# 1. Install dependencies
+pnpm install
 
-- `requestId`
-- `ticketId`
-- `jobId`
-- retry attempt
-- AI latency
-- processing duration
+# 2. Setup environment
+cp .env.example .env
+# Note: Update DATABASE_URL and REDIS_URL to use localhost if running outside Docker
 
-## Database
+# 3. Run migrations
+pnpm run db:migrate -w @triage/api
 
-Kysely is used for type-safe SQL queries and migrations.
-
-Migrations are in `packages/shared/src/migrations`.
-
-## Health Checks
-
-### API
-
-`GET /health` returns `200` only when both are healthy:
-
-- PostgreSQL query success (`SELECT 1`)
-- Redis ping returns `PONG`
-
-Otherwise it returns `503`.
-
-### Worker
-
-Worker health command checks:
-
-- PostgreSQL query success
-- Redis ping success
-
-Docker healthcheck runs `node dist/health.js` in worker container.
-
-## Frontend Behavior
-
-- `PENDING` / `PROCESSING` shown as `Processing...`
-- `FAILED` shown with failure badge
-- Resolve button disabled unless status is `COMPLETED`
-- Resolve action uses optimistic update with rollback on API failure
-- Ticket list supports pagination and urgency sorting
-
-## Repository Structure
-
-```txt
-/apps
-  /web
-  /api
-  /worker
-/packages
-  /shared
-/docker-compose.yml
+# 4. Start development servers
+pnpm run dev
 ```
 
 ## Environment Variables
 
-Copy `.env.example` to `.env`.
+Key variables in `.env`:
 
-Required/important variables:
+- `DATABASE_URL`: PostgreSQL connection string.
+- `REDIS_URL`: Redis connection string.
+- `ACCESS_TOKEN_SECRET`: Secret for JWT authentication.
+- `AI_PROVIDER`: `openai`, `gemini`, or `mock`.
+- `AI_API_KEY`: API key for the chosen provider (optional if using mock).
+- `AI_MODEL`: Specific model version (e.g., `gemini-3-flash-preview`).
+- `NEXT_PUBLIC_API_BASE_URL`: API URL for the frontend.
+- `TEST_USER_EMAIL`: Email for running tests (e.g., `shawn@gmail.com`).
+- `TEST_USER_PASSWORD`: Password for running tests.
 
-- `DATABASE_URL`
-- `REDIS_URL`
-- `AI_PROVIDER=mock|openai`
-- `AI_API_KEY` (required if `AI_PROVIDER=openai` or `gemini`)
-- `AI_MODEL`
-- `AI_TIMEOUT_MS`
-- `WORKER_PROCESSING_DELAY_MS`
-- `API_LOG_LEVEL`
-- `WORKER_LOG_LEVEL`
-- `NEXT_PUBLIC_API_BASE_URL`
-- `INTERNAL_API_BASE_URL`
+## Scripts
 
-## Run with Docker
+### Root Project
 
-```bash
-cp .env.example .env
-docker compose up --build
-```
+- `pnpm run dev`: Start all apps in parallel.
+- `pnpm run build`: Build all packages and apps.
+- `pnpm run lint`: Run linting across the workspace.
+- `pnpm run type-check`: Run TypeScript type checks.
 
-Services:
+### API (`@triage/api`)
 
-- Web: `http://localhost:3000`
-- API: `http://localhost:4000`
-- PostgreSQL: `localhost:5432`
-- Redis: `localhost:6379`
+CD into the `apps/api` directory and run:
 
-## Non-blocking Ingestion Verification (5s Worker Delay)
+- `pnpm run dev`: Start API in dev mode.
+- `pnpm run db:migrate`: Run database migrations.
+- `pnpm run test:non-blocking`: Run non-blocking ingestion check.
 
-1. Set delay in `.env`:
+### Worker (`@triage/worker`)
 
-```bash
-WORKER_PROCESSING_DELAY_MS=5000
-```
+CD into the `apps/worker` directory and run:
 
-2. Start stack:
+- `pnpm run dev`: Start worker service.
 
-```bash
-docker compose up --build
-```
+### Web (`@triage/web`)
 
-3. Run ingestion latency check:
+CD into the `apps/web` directory and run:
 
-```bash
-pnpm run test:non-blocking -w @triage/api
-```
+- `pnpm run dev`: Start Next.js frontend.
 
-Script sends 5 `POST /tickets` requests and asserts max latency against `INGEST_THRESHOLD_MS` (default `100ms`).
+## Non‑Blocking Ingestion Check
 
-## Running the project
+To verify that the system handles ticket ingestion asynchronously:
 
-```bash
-pnpm install
-cp .env.example .env
-pnpm run db:migrate -w @triage/api
-pnpm run dev -w @triage/api
-pnpm run dev -w @triage/worker
-pnpm run dev -w @triage/web
-```
-
-## Graceful Shutdown
-
-API and worker handle `SIGTERM` / `SIGINT` and close resources in order:
-
-- HTTP server (API)
-- BullMQ queue/worker
-- Kysely instance
-- Redis connection
-
-Worker shutdown waits for active jobs to complete to avoid job corruption.
+1. Configure `TEST_USER_EMAIL` and `TEST_USER_PASSWORD` in `.env`.
+2. Set `WORKER_PROCESSING_DELAY_MS=5000` in `.env`.
+3. Run `pnpm run test:non-blocking` in the `apps/api` directory.
+4. Observe that the API returns immediately (SLA check) while the worker is still processing.
