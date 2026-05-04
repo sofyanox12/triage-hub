@@ -1,5 +1,7 @@
 # AI Support Triage Hub
 
+![Agent Tickets Preview](preview.png)
+
 An intelligent support triage system that automatically analyzes incoming tickets using AI to determine sentiment, urgency, and category.
 
 ## Architecture
