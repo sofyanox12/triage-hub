@@ -1,3 +1,4 @@
+import './config/env'
 import { logger } from './lib/logger'
 import { ticketWorker } from './worker'
 import { redis } from './lib/redis'

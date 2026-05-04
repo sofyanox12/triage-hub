@@ -1,6 +1,10 @@
 import { defineConfig } from 'kysely-ctl'
 import { PostgresDialect } from 'kysely'
 import pg from 'pg'
+import dotenv from 'dotenv'
+import path from 'path'
+
+dotenv.config({ path: path.resolve(__dirname, '../../.env') })
 
 const { Pool } = pg
 

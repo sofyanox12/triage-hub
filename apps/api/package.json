@@ -38,6 +38,7 @@
         "jsonwebtoken": "^9.0.3",
         "kysely": "^0.28.11",
         "openai": "^4.104.0",
+        "pg": "^8.18.0",
         "pino": "^9.6.0",
         "zod": "^4.3.6"
     },
@@ -48,6 +49,7 @@
         "@types/cors": "^2.8.17",
         "@types/express": "^5.0.6",
         "@types/jsonwebtoken": "^9.0.10",
+        "@types/pg": "^8.16.0",
         "eslint": "^9.39.2",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-unused-imports": "^4.4.1",

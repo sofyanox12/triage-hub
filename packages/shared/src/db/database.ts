@@ -1,6 +1,13 @@
 import { Kysely, PostgresDialect, sql, CamelCasePlugin } from 'kysely'
 import pg from 'pg'
 import type { Database } from './types'
+import dotenv from 'dotenv'
+import path from 'path'
+
+try {
+    dotenv.config({ path: path.resolve(process.cwd(), '.env'), override: true })
+    dotenv.config({ path: path.resolve(process.cwd(), '../../.env'), override: true })
+} catch (_) {}
 
 const { Pool } = pg
 

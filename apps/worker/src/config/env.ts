@@ -2,8 +2,8 @@ import { resolve } from 'node:path'
 import { config } from 'dotenv'
 import { z } from 'zod'
 
-config({ path: resolve(process.cwd(), '.env') })
-config({ path: resolve(process.cwd(), '../../.env') })
+config({ path: resolve(process.cwd(), '.env'), override: true })
+config({ path: resolve(process.cwd(), '../../.env'), override: true })
 
 const envSchema = z.object({
     NODE_ENV: z

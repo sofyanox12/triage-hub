@@ -1,6 +1,6 @@
+import { env } from '@/config/env'
 import { db } from '@/lib/db'
 import { app } from '@/app'
-import { env } from '@/config/env'
 import { logger } from '@/lib/logger'
 import { redis } from '@/lib/redis'
 import { ticketQueue } from '@/queue/ticket-queue'
